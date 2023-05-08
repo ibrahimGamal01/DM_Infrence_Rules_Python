@@ -2,112 +2,85 @@
 
 # English to Logic Translator
 
-This program translates English sentences into logical statements using a set of predefined rules. It is implemented in Python, and uses regular expressions to match the input sentences against the rules.
+This is a Python program that translates simple English sentences into logical statements using a set of predefined rules.
+
+## Overview
+
+The program consists of several functions that define the rules and handle the translation process. Here is an overview of each function:
+
+- `Rule`: Takes an output and one or more patterns and returns a tuple containing the output and a list of patterns, where each pattern has been modified by the `name_group` function.
+
+- `name_group`: Replaces "{Q}" in the input pattern with "(?P<Q>.+?)", which means "match 1 or more characters, and call it Q".
+
+- `word`: Returns a regular expression that matches "w" as a complete word, not just as a sequence of letters.
+
+- `rules`: A list of several examples of rules that map English sentences to logical statements.
+
+- `negations`: A list of pairs of words, where the first word is a negation and the second word is its positive counterpart.
+
+- `match_rules`: Takes a sentence, a list of rules, and a dictionary of definitions. It first cleans the sentence by removing redundant whitespace, and then tries to match the sentence against each rule in the list using the `match_rule` function. If a match is found, it returns the logical statement and the definitions. If no match is found, it calls the `match_literal` function to handle negations and add new propositions to the dictionary.
+
+- `match_rule`: Takes a sentence, a rule, and a dictionary of definitions. It tries to match the sentence against each pattern in the rule using regular expressions. If a match is found, it returns the output with the matched groups replaced by their corresponding logical statements, and the definitions. If no match is found, it returns None.
+
+- `match_literal`: Takes a sentence, a list of negations, and a dictionary of definitions. It first handles negations by replacing them with their positive counterparts, and then creates a new proposition name for the sentence using the `proposition_name` function. It adds the proposition to the definitions dictionary and returns the logical statement and the definitions.
+
+- `proposition_name`: Takes a sentence, a dictionary of definitions, and a list of proposition names. It checks if the sentence has been used before and returns its old name if it has, or a new unused name if it hasn't.
+
+- `clean`: Takes a text and cleans it by removing redundant whitespace, replacing curly apostrophes with straight ones, and removing trailing commas and periods.
+
+- `logic`: Takes a list of English sentences and an optional width parameter. It splits the sentences into individual sentences using the `split` method, cleans each sentence using the `clean` function, and then calls the `match_rules` function to translate each sentence into a logical statement. It then prints the English sentence, the logical statement, and the definitions using the `textwrap` module to format the output.
 
 ## Usage
 
-To use the program, you can import the module and call the `match_rules` function with a sentence, a list of rules, and an optional dictionary of definitions. The function will return a tuple containing the logical statement and the definitions.
+To use the program, you need to import the `english_to_logic` module and call the `logic` function with a list of English sentences. Here is an example:
 
 ```Python
 import english_to_logic as etl
 
-# Define some rules
-rules = [
-    etl.Rule('{P} ⇒ {Q}', 'if {P} then {Q}'),
-    etl.Rule('{P} ⋁ {Q}', 'either {P} or else {Q}'),
-    ...
-]
-
-# Translate a sentence
-sentence = 'If today is Tuesday, I have a test in English'
-logic, defs = etl.match_rules(sentence, rules)
-
-print('English:', sentence)
-print('Logic:', logic)
-print('Definitions:', defs)
-```
-
-Alternatively, you can use the `logic` function to translate a list of sentences and print the results.
-
-```Python
-import english_to_logic as etl
-
-# Define some sentences
-sentences = [
-    'If today is Tuesday, I have a test in English.',
-    'It is Tuesday.',
-    ...
-]
-
-# Translate and print the sentences
-etl.logic(sentences)
-```
-
-## Rules
-
-The program comes with a set of predefined rules that cover some common sentence structures. Each rule is defined as a tuple containing an output and one or more patterns. The patterns are regular expressions that match the input sentences, and the output is a template string that defines the logical statement.
-
-For example, the rule `{P} ⇒ {Q}` translates the English sentence "If P, then Q" into the logical statement "P implies Q". The rule has two patterns: "if {P} then {Q}" and "if {P}, {Q}". These patterns match the sentence "If today is Tuesday, I have a test in English" and extract the variables "today is Tuesday" and "I have a test in English".
-
-## Negations
-
-The program also handles negations by replacing them with their positive counterparts. For example, the word "not" is negated to an empty string, and the word "cannot" is negated to "can". The list of negations is defined in the `negations` variable, and can be modified or extended as needed.
-
-## Definitions
-
-The program keeps track of the propositions used in the logical statements by assigning them unique names. The names are generated automatically using a list of letters, and are stored in a dictionary along with their English definitions. The definitions are used to provide context for the propositions, and can be printed along with the logical statements.
-
-Continuing from the previous points:
-
-13. The code then calls the "match_rule" function to test a single sentence against a specific rule and prints the result.
-
-```Python
-import english_to_logic as etl
-
-# Define a rule
-rule = etl.Rule('{P} ⇒ {Q}', 'if {P} then {Q}')
-
-# Test a sentence
-sentence = 'If today is Tuesday, I have a test in English'
-logic, defs = etl.match_rule(sentence, rule)
-
-print('English:', sentence)
-print('Logic:', logic)
-print('Definitions:', defs)
-```
-
-14. The "sentences" variable contains a string of several English sentences separated by periods, which can be split into a list of individual sentences using the `split()` method.
-
-```Python
-import english_to_logic as etl
-
-# Define some sentences
-sentences = 'If today is Tuesday, I have a test in English. It is Tuesday.'
-
-# Split the sentences and remove any empty strings
-sentences = [s.strip() for s in sentences.split('.') if s.strip()]
-
-# Translate and print the sentences
-etl.logic(sentences)
-```
-
-15. The "logic" function takes a list of sentences and a width parameter, which determines the maximum width of the output lines. For each sentence, it calls the "match_rules" function to match the sentence against the rules and generate a logical statement. It then prints the English sentence, the logical statement, and the definitions using the `wrap()` method to format the output.
-
-```Python
-import english_to_logic as etl
-
-# Define some sentences
 sentences = [
     'If today is Tuesday, I have a test in English.',
     'It is Tuesday.'
 ]
 
-# Translate and print the sentences
-etl.logic(sentences, width=80)
+etl.logic(sentences)
 ```
 
-The `width` parameter is optional and defaults to 80. If set to None or a negative value, the output lines will not be wrapped.
+This will output:
 
+```
+English: If today is Tuesday, I have a test in English.
+
+Logic: (P ⇒ Q)
+P: today is Tuesday
+Q: I have a test in English
+
+English: It is Tuesday.
+
+Logic: Q
+Q: It is Tuesday
+```
+
+You can also specify the maximum width of the output lines using the `width` parameter:
+
+```Python
+etl.logic(sentences, width=50)
+```
+
+This will output:
+
+```
+English: If today is Tuesday, I have a test in
+         English.
+
+Logic: (P ⇒ Q)
+P: today is Tuesday
+Q: I have a test in English
+
+English: It is Tuesday.
+
+Logic: Q
+Q: It is Tuesday
+```
 
 ## License
 
