@@ -1,7 +1,5 @@
 # DM_Infrence_Rules_Python
 
-Sure! Here's a possible README file:
-
 # English to Logic Translator
 
 This program translates English sentences into logical statements using a set of predefined rules. It is implemented in Python, and uses regular expressions to match the input sentences against the rules.
